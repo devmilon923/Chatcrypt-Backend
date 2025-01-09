@@ -30,6 +30,7 @@ io.on("connection", (socket) => {
         message: `User name must be unique in room`,
         type: false,
       });
+
       return;
     }
     // Check if the socket ID is already present in the specified room
@@ -47,6 +48,7 @@ io.on("connection", (socket) => {
         message: `You are already in`,
         type: false,
       });
+
       return;
     }
 
@@ -64,6 +66,7 @@ io.on("connection", (socket) => {
       message: `You are in`,
       type: true,
     });
+    socket.emit("status", true);
     return;
   });
 
@@ -80,7 +83,9 @@ io.on("connection", (socket) => {
     if (userIndex !== -1) {
       const user = activeUser.splice(userIndex, 1)[0];
       const userData = activeUser.filter((u) => u.room === user.room);
+
       io.to(user.room).emit("activeUserEvent", userData);
+      socket.emit("status", false);
     }
   });
 });
