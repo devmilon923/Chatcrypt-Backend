@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
-
+const moment = require("moment-timezone");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -10,11 +10,36 @@ const io = socketIo(server, {
   },
 });
 
-const chatDB = [];
+let chatDB = [];
 let activeUser = [];
+const resetChat = () => {
+  // Get the current BD time
+  const bdCurrentTime = moment.tz("Asia/Dhaka");
+
+  // Calculate the next midnight (end of the current day in BD timezone)
+  const nextMidnight = bdCurrentTime.clone().endOf("day");
+
+  // Calculate time until next midnight in milliseconds
+  const timeUntilMidnight = nextMidnight.diff(bdCurrentTime);
+
+  // Schedule a reset at midnight
+  setTimeout(() => {
+    chatDB = [];
+    activeUser = [];
+    console.log("chatDB and activeUser reset at midnight (BD Time).");
+
+    // Reschedule the reset for the next day (recursion ensures it runs daily)
+    resetChat();
+  }, timeUntilMidnight);
+
+  return timeUntilMidnight;
+};
 
 io.on("connection", (socket) => {
   // Join room logic
+  setInterval(() => {
+    io.emit("timestaps", resetChat());
+  }, 500);
   socket.on("joinRoom", (info) => {
     const isNameTaken = activeUser.some(
       (user) =>
@@ -60,6 +85,7 @@ io.on("connection", (socket) => {
     const userData = activeUser.filter((user) => user.room === info.room);
 
     io.to(info.room).emit("chatEvent", roomData);
+
     io.to(info.room).emit("activeUserEvent", userData);
     socket.emit("serverResponse", {
       message: `You are in`,
