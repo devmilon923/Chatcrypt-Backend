@@ -6,10 +6,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "https://socket-group-chat.netlify.app",
+    origin: "*",
     methods: ["GET", "POST"],
   },
-  transports: ["websocket", "polling"],
 });
 
 let chatDB = [];
