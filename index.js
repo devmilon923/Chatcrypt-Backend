@@ -6,12 +6,15 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin: "https://socket-group-chat.netlify.app",
+    methods: ["GET", "POST"],
   },
+  transports: ["websocket", "polling"],
 });
 
 let chatDB = [];
 let activeUser = [];
+// Function to reset chat at midnight
 const resetChat = () => {
   // Get the current BD time
   const bdCurrentTime = moment.tz("Asia/Dhaka");
@@ -26,7 +29,6 @@ const resetChat = () => {
   setTimeout(() => {
     chatDB = [];
     activeUser = [];
-    console.log("chatDB and activeUser reset at midnight (BD Time).");
 
     // Reschedule the reset for the next day (recursion ensures it runs daily)
     resetChat();
@@ -34,13 +36,13 @@ const resetChat = () => {
 
   return timeUntilMidnight;
 };
-
+app.get("/", (req, res) => {
+  res.send("Walcome");
+});
 io.on("connection", (socket) => {
-  // Join room logic
-  setInterval(() => {
-    io.emit("timestaps", resetChat());
-  }, 500);
   socket.on("joinRoom", (info) => {
+    // const timeUntilMidnight = resetChat(); // Calculate time until reset
+    // socket.emit("timestaps", timeUntilMidnight);
     const isNameTaken = activeUser.some(
       (user) =>
         user.room?.toLowerCase() === info.room?.toLowerCase() &&
