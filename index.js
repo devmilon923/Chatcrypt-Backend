@@ -32,9 +32,8 @@ const resetChat = () => {
     // Reschedule the reset for the next day (recursion ensures it runs daily)
     resetChat();
   }, timeUntilMidnight);
-
-  return timeUntilMidnight;
 };
+resetChat();
 app.get("/", (req, res) => {
   res.send("Walcome");
 });
@@ -111,6 +110,7 @@ io.on("connection", (socket) => {
 
       io.to(user.room).emit("activeUserEvent", userData);
       socket.emit("status", false);
+      socket.emit("connectionStatus", false);
     }
   });
 });
