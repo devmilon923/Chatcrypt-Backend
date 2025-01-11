@@ -75,7 +75,6 @@ io.on("connection", (socket) => {
       return;
     }
 
-    // console.log("Joining room:", info.room);
     socket.join(info.room);
     const user = { ...info, socket: socket.id };
     activeUser.unshift(user);
