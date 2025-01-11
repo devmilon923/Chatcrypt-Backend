@@ -39,9 +39,8 @@ app.get("/", (req, res) => {
   res.send("Walcome");
 });
 io.on("connection", (socket) => {
+  socket.emit("connectionStatus", true);
   socket.on("joinRoom", (info) => {
-    // const timeUntilMidnight = resetChat(); // Calculate time until reset
-    // socket.emit("timestaps", timeUntilMidnight);
     const isNameTaken = activeUser.some(
       (user) =>
         user.room?.toLowerCase() === info.room?.toLowerCase() &&
