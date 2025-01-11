@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin: "https://socket-group-chat.netlify.app",
     methods: ["GET", "POST"],
   },
 });
